@@ -18,10 +18,30 @@ const cloudinary = require("cloudinary").v2;
 app.use("/uploads",express.static(__dirname+'/uploads'))
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors({
-  credentials:true,
-  origin:"http://localhost:5173",
-}));
+const allowedOrigins = [
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ], // Allowed headers
+  })
+);
  mongoose.connect(process.env.mongo_uri)
  .then(()=>console.log('Connected to Mongo'))
  .catch((err)=>console.log(err));
